@@ -2,7 +2,7 @@ from google import genai
 from google.genai import types
 
 client = genai.Client(
-    api_key='AIzaSyBaTqE-3qccMcMya3kKZwQaPr66SxH53UA',
+    api_key='',
     http_options=types.HttpOptions(api_version='v1alpha')
 )
 
