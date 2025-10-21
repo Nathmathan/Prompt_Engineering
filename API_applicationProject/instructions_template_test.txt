@@ -1,0 +1,53 @@
+Prompt Template (Plain Text)
+Assume that I am college freshman.
+As a professional tutor, please create a comprehensive study guide on McDonaldization.
+The study guide is intended for final exam.
+Output instructions:
+Provide the output in strict JSON format using the structure below.
+Fully break down each topic/subsection and include all relevant content.
+If a study plan is included, distribute it across the specified length and include the requested content.
+Supplement the guide with any missing topics or notes that would improve completeness.
+Identify any unnecessary information from the input.
+{
+  "subject": "{subject}",
+  "purpose": "{purpose}",
+  "overview": "{Brief overview of the subject, including key themes and context}",
+  "topics": [
+    {
+      "title": "{Topic/Subsection Title}",
+      "definition": "{Definition or explanation of the topic}",
+      "examples": ["{Example 1}", "{Example 2}", "..."],
+      "implications": "{Key insights, importance, or consequences}",
+      "additional_notes": "{Complementary notes or related concepts}"
+    }
+    // Repeat this object for each topic/subsection
+  ],
+  "study_plan": {
+    "included": {true/false},
+    "length": "{Total duration, e.g., 1 week, 3 months}",
+    "content": "{Types of activities included, e.g., exercises, pop quizzes, flashcards, hypothetical examples}",
+    "sessions": [
+      {
+        "session_number": {1},
+        "day": "{Suggested day or timeline}",
+        "goals": ["{Goal 1}", "{Goal 2}", "..."],
+        "activities": ["{Activity 1}", "{Activity 2}", "..."],
+        "assessment": ["{Quiz, flashcards, practice problems, etc.}"]
+      }
+      // Repeat this object for each session
+    ]
+  },
+  "notes_on_input": {
+    "relevant_information": ["{List what is relevant from provided input}"],
+    "potentially_unnecessary_information": ["{List anything unnecessary or redundant}"]
+  }
+}
+Instructions for placeholders:
+{user} → Role or level of the learner (e.g., college freshman)
+{subject} → Topic of the study guide
+{purpose} → Reason for the guide (e.g., final exam prep)
+{topics/subsections} → List of topics/subsections to include in the guide
+{material} → Reference materials to use
+{other specifications or preferences} → Additional instructions (e.g., formatting, style)
+{length} → Duration of study plan
+{content} → Types of activities included (e.g., exercises, quizzes, flashcards)
