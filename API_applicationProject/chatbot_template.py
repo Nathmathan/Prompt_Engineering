@@ -1,6 +1,6 @@
 import os
 import random
-import google.generativeai as genai
+from google import genai
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -18,7 +18,11 @@ all_questions = {
     "linear_algebra": [],
     "statistics": []
 }
+client = genai.Client()
 
+response = client.models.generate_content(
+    model="gemini-2.5-flash",
+)
 # Create the model
 generation_config = {
   "temperature": 1,
