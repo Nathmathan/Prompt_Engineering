@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Study Guide Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .form-group .required {
+            color: #e74c3c;
+            margin-left: 3px;
+        }
+
+        .form-group .optional {
+            color: #95a5a6;
+            font-weight: 400;
+            font-size: 0.85rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+
+        .result-container.show {
+            display: block;
+        }
+
+        .result-header {
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .result-header h2 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .result-overview {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-overview p {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .topic-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid #e0e0e0;
+            transition: transform 0.2s ease;
+        }
+
+        .topic-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .topic-card h3 {
+            color: #667eea;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .topic-card h3::before {
+            content: "📚";
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+
+        .topic-card .definition {
+            color: #555;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .examples-list {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .examples-list h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .examples-list ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .examples-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .examples-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .study-plan {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            border-left: 4px solid #764ba2;
+        }
+
+        .study-plan h3 {
+            color: #764ba2;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .study-plan h3::before {
+            content: "📅";
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+
+        .session-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 3px solid #764ba2;
+        }
+
+        .session-card .session-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .session-card .session-number {
+            font-weight: 600;
+            color: #764ba2;
+        }
+
+        .session-card .session-day {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #c33;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .form-container,
+            .result-container {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 AI Study Guide Generator</h1>
+            <p>Create comprehensive, personalized study guides powered by AI</p>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Generating your personalized study guide...</p>
+        </div>
+
+        <div class="error-message" id="error"></div>
+
+        <div class="form-container">
+            <form id="studyGuideForm">
+                <div class="form-group">
+                    <label>User Role <span class="required">*</span></label>
+                    <input type="text" id="user" placeholder="e.g., a high school student" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Subject <span class="required">*</span></label>
+                    <input type="text" id="subject" placeholder="e.g., machine learning" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Purpose <span class="optional">(optional)</span></label>
+                    <input type="text" id="purpose" placeholder="e.g., preparing for an upcoming exam">
+                </div>
+
+                <div class="form-group">
+                    <label>Topics/Subsections <span class="optional">(optional)</span></label>
+                    <textarea id="topics_subsections" placeholder="e.g., neural networks, supervised learning, unsupervised learning"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Reference Material <span class="optional">(optional)</span></label>
+                    <input type="file" id="material" accept=".pdf" style="padding: 8px;">
+                    <small style="display: block; margin-top: 5px; color: #666;">Upload PDF files as reference material</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Additional Instructions <span class="optional">(optional)</span></label>
+                    <textarea id="other_specifications" placeholder="e.g., focus on practical examples and applications"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Study Plan Length <span class="required">*</span></label>
+                    <input type="text" id="length" placeholder="e.g., 2 weeks" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Study Plan Content <span class="required">*</span></label>
+                    <textarea id="content" placeholder="e.g., practice problems, quizzes, and review sessions" required></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">Generate Study Guide</button>
+            </form>
+        </div>
+
+        <div class="result-container" id="resultContainer">
+            <div class="result-header">
+                <h2 id="resultSubject"></h2>
+                <p id="resultPurpose"></p>
+            </div>
+
+            <div class="result-overview" id="resultOverview"></div>
+
+            <div id="topicsContainer"></div>
+
+            <div class="study-plan" id="studyPlanContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('studyGuideForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+        const resultContainer = document.getElementById('resultContainer');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Hide previous results and errors
+            resultContainer.classList.remove('show');
+            errorDiv.classList.remove('show');
+
+            // Show loading
+            loading.classList.add('show');
+            submitBtn.disabled = true;
+
+            // Get file input
+            const fileInput = document.getElementById('material');
+            const file = fileInput.files[0];
+
+            // Get form data
+            const formData = new FormData();
+            formData.append('user', document.getElementById('user').value);
+            formData.append('subject', document.getElementById('subject').value);
+            formData.append('purpose', document.getElementById('purpose').value);
+            formData.append('topics_subsections', document.getElementById('topics_subsections').value);
+            formData.append('other_specifications', document.getElementById('other_specifications').value);
+            formData.append('length', document.getElementById('length').value);
+            formData.append('content', document.getElementById('content').value);
+            
+            // Append PDF file if provided
+            if (file) {
+                formData.append('material', file);
+            }
+
+            try {
+                const response = await fetch('/generate_study_guide', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                loading.classList.remove('show');
+                submitBtn.disabled = false;
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'An error occurred');
+                }
+
+                if (data.success) {
+                    // Parse the study guide JSON
+                    let studyGuideText = data.study_guide.trim();
+                    
+                    // Remove markdown code block delimiters if present
+                    studyGuideText = studyGuideText.replace(/^```json\s*/i, '');
+                    studyGuideText = studyGuideText.replace(/^```\s*/i, '');
+                    studyGuideText = studyGuideText.replace(/\s*```$/i, '');
+                    studyGuideText = studyGuideText.trim();
+                    
+                    console.log('Parsing JSON:', studyGuideText.substring(0, 200));
+                    
+                    const studyGuide = JSON.parse(studyGuideText);
+                    displayResults(studyGuide);
+                } else {
+                    throw new Error('Failed to generate study guide');
+                }
+
+            } catch (error) {
+                loading.classList.remove('show');
+                submitBtn.disabled = false;
+                console.error('Parse error:', error);
+                console.error('Raw response:', data);
+                errorDiv.textContent = `Error: ${error.message}`;
+                errorDiv.classList.add('show');
+            }
+        });
+
+        function displayResults(guide) {
+            // Display header
+            document.getElementById('resultSubject').textContent = guide.subject;
+            document.getElementById('resultPurpose').textContent = `Purpose: ${guide.purpose}`;
+            document.getElementById('resultOverview').innerHTML = `<p>${guide.overview}</p>`;
+
+            // Display topics
+            const topicsContainer = document.getElementById('topicsContainer');
+            topicsContainer.innerHTML = '';
+
+            guide.topics.forEach(topic => {
+                const topicCard = document.createElement('div');
+                topicCard.className = 'topic-card';
+
+                let subtopicsHtml = '';
+                if (topic.subtopics && topic.subtopics.length > 0) {
+                    subtopicsHtml = '<div style="margin-top: 15px;">';
+                    topic.subtopics.forEach(subtopic => {
+                        subtopicsHtml += `
+                            <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                                <h4 style="color: #333; margin-bottom: 8px;">${subtopic.title}</h4>
+                                <p style="color: #666; margin-bottom: 8px;">${subtopic.definition}</p>
+                                ${subtopic.examples && subtopic.examples.length > 0 ? `
+                                    <div class="examples-list">
+                                        <ul>
+                                            ${subtopic.examples.map(ex => `<li>${ex}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                ` : ''}
+                                ${subtopic.additional_notes ? `<p style="color: #888; font-size: 0.9rem; margin-top: 8px;">${subtopic.additional_notes}</p>` : ''}
+                            </div>
+                        `;
+                    });
+                    subtopicsHtml += '</div>';
+                }
+
+                topicCard.innerHTML = `
+                    <h3>${topic.title}</h3>
+                    <div class="definition">${topic.definition}</div>
+                    ${topic.examples && topic.examples.length > 0 ? `
+                        <div class="examples-list">
+                            <h4>Examples:</h4>
+                            <ul>
+                                ${topic.examples.map(ex => `<li>${ex}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                    ${topic.implications ? `<p style="margin-top: 10px; color: #555;"><strong>Implications:</strong> ${topic.implications}</p>` : ''}
+                    ${topic.additional_notes ? `<p style="margin-top: 10px; color: #888; font-size: 0.9rem;">${topic.additional_notes}</p>` : ''}
+                    ${subtopicsHtml}
+                `;
+
+                topicsContainer.appendChild(topicCard);
+            });
+
+            // Display study plan
+            if (guide.study_plan && guide.study_plan.included) {
+                const studyPlanContainer = document.getElementById('studyPlanContainer');
+                studyPlanContainer.innerHTML = `
+                    <h3>Study Plan</h3>
+                    <p style="margin-bottom: 20px; color: #555;">
+                        <strong>Length:</strong> ${guide.study_plan.length}<br>
+                        <strong>Content:</strong> ${guide.study_plan.content}
+                    </p>
+                    <div id="sessionsContainer"></div>
+                `;
+
+                const sessionsContainer = document.getElementById('sessionsContainer');
+                guide.study_plan.sessions.forEach(session => {
+                    const sessionCard = document.createElement('div');
+                    sessionCard.className = 'session-card';
+                    
+                    sessionCard.innerHTML = `
+                        <div class="session-header">
+                            <span class="session-number">Session ${session.session_number}</span>
+                            <span class="session-day">${session.day}</span>
+                        </div>
+                        ${session.goals && session.goals.length > 0 ? `
+                            <div style="margin-bottom: 10px;">
+                                <strong style="color: #333;">Goals:</strong>
+                                <ul style="list-style: none; padding-left: 20px; margin-top: 5px;">
+                                    ${session.goals.map(goal => `<li style="padding: 4px 0;">• ${goal}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                        ${session.activities && session.activities.length > 0 ? `
+                            <div style="margin-bottom: 10px;">
+                                <strong style="color: #333;">Activities:</strong>
+                                <ul style="list-style: none; padding-left: 20px; margin-top: 5px;">
+                                    ${session.activities.map(activity => `<li style="padding: 4px 0;">• ${activity}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                        ${session.materials_needed && session.materials_needed.length > 0 ? `
+                            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e0e0e0;">
+                                <strong style="color: #666;">Materials needed:</strong>
+                                <span style="color: #888;">${session.materials_needed.join(', ')}</span>
+                            </div>
+                        ` : ''}
+                    `;
+
+                    sessionsContainer.appendChild(sessionCard);
+                });
+            }
+
+            // Show results
+            resultContainer.classList.add('show');
+            resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    </script>
+</body>
+</html>
+

@@ -2,7 +2,8 @@
 argparse
 google-generativeai
 google-cloud-aiplatform
-firebase-admin
-bcrypt
+#firebase-admin
+#bcrypt
 python-dotenv
 flask
+PyPDF2

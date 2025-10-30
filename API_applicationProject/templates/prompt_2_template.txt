@@ -19,8 +19,8 @@ Identify any unnecessary information from the input.
 Include "notes_on_input" to record what was relevant or unnecessary from the prompt.
 
 {{
-  "subject": "{subject}",
-  "purpose": "{purpose}",
+  "subject": "{{subject}}",
+  "purpose": "{{purpose}}",
   "overview": "{{Brief overview of the subject, including key themes and context}}",
   "topics": [
     {{
