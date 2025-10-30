@@ -1,10 +1,20 @@
 Prompt Template (Plain Text)
 Assume that I am college freshman.
 As a professional tutor, please create a comprehensive study guide on McDonaldization.
-The study guide is intended for final exam.
+The study guide is intended for a final exam.
+I believe the study guide should include the following talking points: four principles of McDonaldization.
+I will provide the following reference material to use for the study guide: none.
+I would also like for the study consider the following additional intructions: none.
+I would like for you to include a study plan along the study guide.
+  The study plan should be of the following length: 3 sessions over a week.
+  The study plan should additionally include the following content: none.
+
 Output instructions:
 Provide the output in strict JSON format using the structure below.
+If I've provided specific topic/subsections, please take them into consideration.
 Fully break down each topic/subsection and include all relevant content.
+If reference material is provided, use it for the study guide.
+If I've provided additional instructions, take them into consideration when generating the study guide.
 If a study plan is included, distribute it across the specified length and include the requested content.
 Supplement the guide with any missing topics or notes that would improve completeness.
 Identify any unnecessary information from the input.
