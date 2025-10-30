@@ -5,3 +5,4 @@ google-cloud-aiplatform
 firebase-admin
 bcrypt
 python-dotenv
+flask

@@ -18,52 +18,52 @@ Supplement the guide with any missing topics or notes that would improve complet
 Identify any unnecessary information from the input.
 Include "notes_on_input" to record what was relevant or unnecessary from the prompt.
 
-{
+{{
   "subject": "{subject}",
   "purpose": "{purpose}",
-  "overview": "{Brief overview of the subject, including key themes and context}",
+  "overview": "{{Brief overview of the subject, including key themes and context}}",
   "topics": [
-    {
-      "title": "{Topic/Subsection Title}",
-      "definition": "{Definition or explanation of the topic}",
-      "examples": ["{Example 1}", "{Example 2}", "..."],
-      "implications": "{Key insights, importance, or consequences}",
-      "additional_notes": "{Complementary notes or related concepts}",
+    {{
+      "title": "{{Topic/Subsection Title}}",
+      "definition": "{{Definition or explanation of the topic}}",
+      "examples": ["{{Example 1}}", "{{Example 2}}", "..."],
+      "implications": "{{Key insights, importance, or consequences}}",
+      "additional_notes": "{{Complementary notes or related concepts}}",
       "subtopics": [
-        {
-          "title": "{Subtopic Title}",
-          "definition": "{Definition or explanation of the subtopic}",
-          "examples": ["{Example 1}", "{Example 2}", "..."],
-          "implications": "{Insights or relevance}",
-          "additional_notes": "{Additional commentary or relationships}"
-        }
+        {{
+          "title": "{{Subtopic Title}}",
+          "definition": "{{Definition or explanation of the subtopic}}",
+          "examples": ["{{Example 1}}", "{{Example 2}}", "..."],
+          "implications": "{{Insights or relevance}}",
+          "additional_notes": "{{Additional commentary or relationships}}"
+        }}
         // Repeat for each subtopic under this topic
       ]
-    }
+    }}
     // Repeat for each topic/subsection
   ],
-  "study_plan": {
-    "included": {true/false},
-    "length": "{Total duration, e.g., '3 sessions over one week' or '10 sessions over one month'}",
-    "content": "{Types of activities included, e.g., flashcards, quizzes, essays, examples}",
+  "study_plan": {{
+    "included": {{true/false}},
+    "length": "{{Total duration, e.g., '3 sessions over one week' or '10 sessions over one month'}}",
+    "content": "{{Types of activities included, e.g., flashcards, quizzes, essays, examples}}",
     "sessions": [
-      {
-        "session_number": {1},
-        "day": "{Suggested day or timeline, e.g., 'Day 1' or 'Week 1, Session 1'}",
-        "goals": ["{Goal 1}", "{Goal 2}", "..."],
-        "activities": ["{Activity 1}", "{Activity 2}", "..."],
-        "assessment": ["{Quiz, flashcards, reflection, etc.}"],
-        "materials_needed": ["{Readings, videos, or references used}", "..."]
-      }
+      {{
+        "session_number": {{1}},
+        "day": "{{Suggested day or timeline, e.g., 'Day 1' or 'Week 1, Session 1'}}",
+        "goals": ["{{Goal 1}}", "{{Goal 2}}", "..."],
+        "activities": ["{{Activity 1}}", "{{Activity 2}}", "..."],
+        "assessment": ["{{Quiz, flashcards, reflection, etc.}}"],
+        "materials_needed": ["{{Readings, videos, or references used}}", "..."]
+      }}
       // Repeat this object for each session
     ]
-  },
-  "notes_on_input": {
+  }},
+  "notes_on_input": {{
     "relevant_information": [
-      "{List what is relevant from provided input: e.g., user role, purpose, included topics, length, etc.}"
+      "{{List what is relevant from provided input: e.g., user role, purpose, included topics, length, etc.}}"
     ],
     "potentially_unnecessary_information": [
-      "{List any input details not needed or redundant}"
+      "{{List any input details not needed or redundant}}"
     ]
-  }
-}
+  }}
+}}
