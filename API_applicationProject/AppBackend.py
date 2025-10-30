@@ -63,7 +63,7 @@ def generate_study_guide():
             }), 400
         
         # Read the template file
-        template_path = os.path.join(os.path.dirname(__file__), "prompt_2_template.txt")
+        template_path = os.path.join(os.path.dirname(__file__), "prompt_template.txt")
         with open(template_path, 'r') as file:
             template_content = file.read()
         
