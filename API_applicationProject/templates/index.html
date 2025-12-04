@@ -123,6 +123,40 @@
             transform: none;
         }
 
+        .google-login-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #ffffff;
+            color: #444;
+            border: 1px solid #dadce0;
+            border-radius: 999px;
+            padding: 10px 20px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3);
+            transition: box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+        }
+
+        .google-login-btn:hover {
+            box-shadow: 0 2px 6px rgba(60, 64, 67, 0.3);
+            background-color: #f8f9fa;
+            transform: translateY(-1px);
+        }
+
+        .google-login-btn:active {
+            box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3);
+            transform: translateY(0);
+        }
+
+        .google-login-btn img {
+            width: 18px;
+            height: 18px;
+        }
+
         .result-container {
             background: white;
             border-radius: 20px;
@@ -275,6 +309,59 @@
             color: #333;
         }
 
+        .doc-create-container {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 12px;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+        }
+
+        .doc-create-container h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .doc-create-container p {
+            margin-bottom: 10px;
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        .doc-create-container textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #d0d0d0;
+            resize: vertical;
+            min-height: 70px;
+            font-family: inherit;
+            margin-bottom: 10px;
+        }
+
+        .doc-create-container button {
+            background: #34a853;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+
+        .doc-create-container button:hover {
+            background: #2c8c45;
+            transform: translateY(-1px);
+        }
+
+        .doc-create-message {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
         .loading {
             text-align: center;
             padding: 40px;
@@ -342,6 +429,12 @@
         <div class="error-message" id="error"></div>
 
         <div class="form-container">
+            <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+                <a href="/auth/google" class="google-login-btn">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo">
+                    <span>Continue with Google</span>
+                </a>
+            </div>
             <form id="studyGuideForm">
                 <div class="form-group">
                     <label>User Role <span class="required">*</span></label>
@@ -399,6 +492,14 @@
             <div id="topicsContainer"></div>
 
             <div class="study-plan" id="studyPlanContainer"></div>
+
+            <div class="doc-create-container" id="docCreateContainer" style="display: none;">
+                <h3>Create a Google Doc from this study guide</h3>
+                <p>You’re logged in with Google. If you’d like, we can create a Google Doc that stores this study guide JSON. Add any extra instructions for formatting or structure:</p>
+                <textarea id="docAdditionalRequests" placeholder="e.g., add a summary section at the top, bold key terms, create a checklist for each session"></textarea>
+                <button id="createDocBtn" type="button">Create Google Doc</button>
+                <div class="doc-create-message" id="docCreateMessage"></div>
+            </div>
         </div>
     </div>
 
@@ -408,10 +509,16 @@
         const loading = document.getElementById('loading');
         const errorDiv = document.getElementById('error');
         const resultContainer = document.getElementById('resultContainer');
+        const docCreateContainer = document.getElementById('docCreateContainer');
+        const createDocBtn = document.getElementById('createDocBtn');
+        const docAdditionalRequests = document.getElementById('docAdditionalRequests');
+        const docCreateMessage = document.getElementById('docCreateMessage');
+
+        // Keep reference to last generated guide so we can send it to the doc creator
+        let lastGeneratedGuide = null;
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-
             // Hide previous results and errors
             resultContainer.classList.remove('show');
             errorDiv.classList.remove('show');
@@ -467,6 +574,7 @@
                     console.log('Parsing JSON:', studyGuideText.substring(0, 200));
                     
                     const studyGuide = JSON.parse(studyGuideText);
+                    lastGeneratedGuide = studyGuide;
                     displayResults(studyGuide);
                 } else {
                     throw new Error('Failed to generate study guide');
@@ -590,6 +698,51 @@
             // Show results
             resultContainer.classList.add('show');
             resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // After results are visible, show Google Doc creation UI
+            if (docCreateContainer) {
+                docCreateContainer.style.display = 'block';
+                docAdditionalRequests.value = '';
+                docCreateMessage.textContent = '';
+            }
+        }
+
+        if (createDocBtn) {
+            createDocBtn.addEventListener('click', async () => {
+                if (!lastGeneratedGuide) {
+                    docCreateMessage.textContent = 'No study guide available. Please generate a study guide first.';
+                    return;
+                }
+
+                docCreateMessage.textContent = 'Creating Google Doc...';
+
+                try {
+                    const resp = await fetch('/create_google_doc', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            study_guide: lastGeneratedGuide,
+                            additional_requests: docAdditionalRequests.value
+                        })
+                    });
+
+                    const result = await resp.json();
+
+                    if (!resp.ok || !result.success) {
+                        throw new Error(result.error || 'Failed to create Google Doc');
+                    }
+
+                    if (result.doc_url) {
+                        docCreateMessage.innerHTML = `Google Doc created: <a href="${result.doc_url}" target="_blank" rel="noopener noreferrer">Open document</a>`;
+                    } else {
+                        docCreateMessage.textContent = 'Google Doc created successfully.';
+                    }
+                } catch (err) {
+                    docCreateMessage.textContent = `Error creating Google Doc: ${err.message}`;
+                }
+            });
         }
     </script>
 </body>

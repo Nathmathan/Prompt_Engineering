@@ -7,3 +7,4 @@ google-cloud-aiplatform
 python-dotenv
 flask
 PyPDF2
+requests
