@@ -34,7 +34,11 @@ SEMANTIC_OBJECT_KEYS = {"title", "definition", "examples", "implications", "addi
 def is_semantic_object(obj: dict) -> bool:
     return any(key in obj for key in SEMANTIC_OBJECT_KEYS)
 
-def json_to_doc_requests(data, start_index=1, heading_level=1, section_title=None):
+def json_to_doc_requests(data, start_index=1, heading_level=1, section_title=None, semantic_object=False):
+    """
+    Build a list of Google Docs API requests to render the provided JSON.
+    Returns a tuple of (requests_list, next_index).
+    """
     requests = []
     index = start_index
 
@@ -83,6 +87,10 @@ def json_to_doc_requests(data, start_index=1, heading_level=1, section_title=Non
             add_heading(section_title, heading_level)
 
         for key, value in data.items():
+            # If this dict is a semantic object (e.g., has "title") and we've
+            # already used the title as a heading, skip rendering the raw title
+            if semantic_object and key == "title":
+                continue
             formatted_key = key.replace("_", " ").title()
             child_title = formatted_key
 
@@ -105,7 +113,8 @@ def json_to_doc_requests(data, start_index=1, heading_level=1, section_title=Non
                         obj,
                         index,
                         heading_level + 1,
-                        section_title=obj.get("title", "Item")
+                        section_title=obj.get("title", "Item"),
+                        semantic_object=True
                     )
                     requests.extend(child_reqs)
             else:
@@ -155,7 +164,7 @@ def move_file_to_folder(drive, file_id, folder_id):
 def generate_doc_from_json(
     json_data,
     refresh_token,
-    create_folder=False,
+    create_folder_flag=False,
     folder_name=None
 ):
     docs, drive = get_clients(refresh_token)
@@ -164,16 +173,15 @@ def generate_doc_from_json(
     doc_id = create_doc(drive, json_data.get("subject", "New Study Guide"))
 
     # Step 2: Build out content
-    requests = json_to_doc_requests(json_data)
+    requests, _ = json_to_doc_requests(json_data)
 
     # Step 3: Write the content
-    print(requests[0])
-    for request in requests:
-        update_doc(docs, doc_id, request)
+    print(requests)
+    update_doc(docs, doc_id, requests)
 
     # Step 4: Optional folder placement
     folder_id = None
-    if create_folder:
+    if create_folder_flag:
         folder_id = create_folder(drive, folder_name or "Generated Study Guides")
         move_file_to_folder(drive, doc_id, folder_id)
 

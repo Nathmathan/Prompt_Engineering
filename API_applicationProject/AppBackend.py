@@ -28,7 +28,7 @@ def promptAPI(prompt):
     client = genai.Client(api_key=os.getenv('API_KEY'))
         
     response = client.models.generate_content(
-        model="gemini-2.5-pro",
+        model="gemini-2.5-flash",
         contents=prompt,
     )
     return response.text
@@ -84,7 +84,7 @@ def create_google_doc():
         result = generate_doc_from_json(
             json_data=study_guide,
             refresh_token=refresh_token,
-            create_folder=True,
+            create_folder_flag=True,
             folder_name="Generated Study Guides"
         )
         return jsonify({"success": True, "doc_url": result.get("doc_url")}), 200
