@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
-
 env_path = os.path.join(os.path.dirname(__file__), "ENVIRONMENT_variables.env")
 load_dotenv(env_path, override=True)
 
@@ -120,11 +119,39 @@ def json_to_doc_requests(data, start_index=1, heading_level=1, section_title=Non
             else:
                 # Otherwise → generate table
                 headers = list(data[0].keys())
-                rows = [headers] + [
+                table_rows = [headers] + [
                     [item.get(h, "") for h in headers] for item in data
                 ]
-                # You can call your table renderer here
-                insert_text("TABLE WOULD BE GENERATED HERE\n\n")
+
+                # Insert a real table using Google Docs requests
+                table_start_index = index
+                requests.append({
+                    "insertTable": {
+                        "rows": len(table_rows),
+                        "columns": len(headers),
+                        "location": {"index": table_start_index}
+                    }
+                })
+
+                # Fill each cell by inserting text sequentially through the table content.
+                # We approximate cell offsets by walking content order; this avoids invalid
+                # tableCellLocation usage (not supported in insertText).
+                insertion_index = table_start_index
+                for row in table_rows:
+                    for cell_value in row:
+                        text = str(cell_value)
+                        requests.append({
+                            "insertText": {
+                                "text": text,
+                                "location": {"index": insertion_index}
+                            }
+                        })
+                        insertion_index += len(text)
+                        # Add a space to advance past the inserted text within the cell
+                        insertion_index += 0
+
+                # Advance index past the table (Docs reserves one position for the table)
+                index = table_start_index + 1
 
         # List of primitives → bullet list
         elif all(not isinstance(x, dict) for x in data):
@@ -176,7 +203,6 @@ def generate_doc_from_json(
     requests, _ = json_to_doc_requests(json_data)
 
     # Step 3: Write the content
-    print(requests)
     update_doc(docs, doc_id, requests)
 
     # Step 4: Optional folder placement
@@ -186,6 +212,8 @@ def generate_doc_from_json(
         move_file_to_folder(drive, doc_id, folder_id)
 
     return {
+        "requests":requests,
+        "doc":docs,
         "doc_id": doc_id,
         "doc_url": f"https://docs.google.com/document/d/{doc_id}/edit",
         "folder_id": folder_id

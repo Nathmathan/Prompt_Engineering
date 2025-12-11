@@ -2,12 +2,13 @@ import os
 import PyPDF2
 import io
 import requests
+import json
 from urllib.parse import urlencode
 from flask import Flask, request, jsonify, render_template, redirect, session, url_for
 from google import genai
 from dotenv import load_dotenv
 from Googler.security import generate_state, generate_pkce_pair
-from GoogleDocCreator import generate_doc_from_json
+from GoogleDocCreator import generate_doc_from_json, update_doc
 
 
 # Load environment variables
@@ -87,6 +88,12 @@ def create_google_doc():
             create_folder_flag=True,
             folder_name="Generated Study Guides"
         )
+
+        # If there are additional instructions, try to fetch and apply extra requests
+        if additional_requests:
+            extra_requests = generate_additional_requests(result.get("requests"), additional_requests)
+            update_doc(result.get("doc"), result.get("doc_id"), extra_requests)
+
         return jsonify({"success": True, "doc_url": result.get("doc_url")}), 200
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -209,6 +216,54 @@ def current_user():
 
     # In production, do NOT return access_token/id_token to the frontend.
     return jsonify({"authenticated": True, "user": user}), 200
+
+def _strip_code_fences(text: str) -> str:
+    """Remove common markdown code fences around JSON."""
+    cleaned = text.strip()
+
+    # Handle fenced blocks like ```json ... ``` or ``` ... ```
+    if cleaned.startswith("```json"):
+        cleaned = cleaned[len("```json"):]
+    elif cleaned.startswith("```"):
+        cleaned = cleaned[len("```"):]
+
+    # If there's a leading newline after the fence, drop it
+    cleaned = cleaned.lstrip("\n\r")
+
+    # Strip trailing fence
+    if cleaned.endswith("```"):
+        cleaned = cleaned[:-3]
+
+    return cleaned.strip()
+
+
+def generate_additional_requests(requests, additional_requests):
+    template_path = os.path.join(os.path.dirname(__file__), "doc_prompt_template.txt")
+    with open(template_path, 'r') as file:
+        template_content = file.read()
+        
+    # Replace the 2 variables in the template
+    prompt = template_content.format(
+        initial_requests=requests,
+        **{"other specifications or instructions": additional_requests}
+    )
+
+    result = promptAPI(prompt)
+
+    # Clean potential code fences then parse as JSON array of Docs requests.
+    cleaned = _strip_code_fences(result or "")
+    if not cleaned:
+        raise ValueError("No content returned for additional requests")
+    print(cleaned[9448:])
+    #print(cleaned.substring(0,cleaned.count))
+    try:
+        parsed = json.loads(cleaned)
+        if not isinstance(parsed, list):
+            raise ValueError("Expected a list of requests")
+        return parsed
+    except Exception as e:
+        # Propagate parsing issues to the caller for clearer error handling.
+        raise ValueError(f"Failed to parse additional requests JSON: {e}")
 
 @app.route('/generate_study_guide', methods=['POST'])
 def generate_study_guide():
