@@ -16,13 +16,32 @@ Important Rules:
     Follow Google Docs API specifications exactly.
     Ensure output format matches the structure of the initial request array
 
-Output Requirements:
-    Output only the final combined list of Google Docs API requests.
-    Use exactly the same JSON structure and format as the {initial_requests}.
+Critical Color Format Rules:
+    For text colors, use this EXACT structure:
+    {{
+      "updateTextStyle": {{
+        "textStyle": {{
+          "foregroundColor": {{
+            "color": {{
+              "rgbColor": {{
+                "red": 0.0-1.0,
+                "green": 0.0-1.0,
+                "blue": 0.0-1.0
+              }}
+            }}
+          }}
+        }},
+        "range": {{"startIndex": X, "endIndex": Y}},
+        "fields": "foregroundColor"
+      }}
+    }}
+    
+    NEVER use "rgbColor" directly under "foregroundColor" or "backgroundColor".
+    ALWAYS wrap rgbColor inside a "color" object.
 
-Include:
-    All original requests (unchanged)
-    Your added formatting/style requests at the end
+Output Requirements:
+    Output only the additional API requests
+    Output needs to be a Valid JSON array
     Do not include explanations, comments, or natural language. Output JSON only.
 
 Placeholder Rules:

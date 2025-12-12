@@ -402,6 +402,189 @@
             display: block;
         }
 
+        .audit-log-wrapper {
+            position: fixed;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            z-index: 1000;
+        }
+
+        .audit-log-container {
+            position: relative;
+            transform: translateX(100%);
+            width: 380px;
+            max-width: 90vw;
+            background: white;
+            border-radius: 20px 0 0 20px;
+            padding: 30px;
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.2);
+            max-height: 80vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease-in-out;
+            z-index: 1002;
+        }
+
+        .audit-log-tab {
+            position: fixed;
+            right: -15%;
+            top: 50%;
+            transform: translateY(-50%) rotate(-90deg);
+            transform-origin: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            box-shadow: -3px 0 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+
+        .audit-log-tab:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #653a8f 100%);
+        }
+
+        .audit-log-tab:hover ~ .audit-log-container,
+        .audit-log-container:hover {
+            transform: translateX(0);
+        }
+
+        .audit-log-tab::before {
+            content: "📋";
+            font-size: 1.2rem;
+            margin-right: 5px;
+        }
+
+        .audit-log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .audit-log-header h3 {
+            color: #333;
+            font-size: 1.3rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .audit-log-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .audit-log-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .audit-log-btn.refresh {
+            background: #667eea;
+            color: white;
+        }
+
+        .audit-log-btn.refresh:hover {
+            background: #5568d3;
+        }
+
+        .audit-log-btn.clear {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .audit-log-btn.clear:hover {
+            background: #c0392b;
+        }
+
+        .audit-log-entry {
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            background: #f8f9fa;
+            transition: transform 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .audit-log-entry:hover {
+            transform: translateX(3px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .audit-log-entry.success {
+            border-left-color: #27ae60;
+        }
+
+        .audit-log-entry.error {
+            border-left-color: #e74c3c;
+        }
+
+        .audit-log-entry.info {
+            border-left-color: #3498db;
+        }
+
+        .audit-log-entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .audit-log-entry-type {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.85rem;
+            text-transform: capitalize;
+        }
+
+        .audit-log-entry-time {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .audit-log-entry-description {
+            color: #555;
+            margin-bottom: 6px;
+            line-height: 1.4;
+            font-size: 0.85rem;
+        }
+
+        .audit-log-entry-details {
+            font-size: 0.75rem;
+            color: #777;
+            background: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            margin-top: 6px;
+        }
+
+        .audit-log-entry-details strong {
+            color: #333;
+        }
+
+        .audit-log-empty {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-style: italic;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
@@ -495,10 +678,26 @@
 
             <div class="doc-create-container" id="docCreateContainer" style="display: none;">
                 <h3>Create a Google Doc from this study guide</h3>
-                <p>You’re logged in with Google. If you’d like, we can create a Google Doc that stores this study guide JSON. Add any extra instructions for formatting or structure:</p>
+                <p>You're logged in with Google. If you'd like, we can create a Google Doc that stores this study guide JSON. Add any extra instructions for formatting or structure:</p>
                 <textarea id="docAdditionalRequests" placeholder="e.g., add a summary section at the top, bold key terms, create a checklist for each session"></textarea>
                 <button id="createDocBtn" type="button">Create Google Doc</button>
                 <div class="doc-create-message" id="docCreateMessage"></div>
+            </div>
+        </div>
+
+        <div class="audit-log-wrapper">
+            <div class="audit-log-tab">Activity Log</div>
+            <div class="audit-log-container" id="auditLogContainer">
+            <div class="audit-log-header">
+                <h3>AI Activity Log</h3>
+                <div class="audit-log-controls">
+                    <button class="audit-log-btn refresh" id="refreshAuditLog" title="Refresh log">🔄</button>
+                    <button class="audit-log-btn clear" id="clearAuditLog" title="Clear log">🗑️</button>
+                </div>
+            </div>
+            <div id="auditLogContent">
+                <div class="audit-log-empty">No activity logged yet. Actions will appear here as you use the app.</div>
+            </div>
             </div>
         </div>
     </div>
@@ -698,14 +897,102 @@
             // Show results
             resultContainer.classList.add('show');
             resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            
+
             // After results are visible, show Google Doc creation UI
             if (docCreateContainer) {
                 docCreateContainer.style.display = 'block';
                 docAdditionalRequests.value = '';
                 docCreateMessage.textContent = '';
             }
+
+            // Refresh audit log after study guide generation
+            refreshAuditLog();
         }
+
+        // Audit log functionality
+        const auditLogContent = document.getElementById('auditLogContent');
+        const refreshAuditLogBtn = document.getElementById('refreshAuditLog');
+        const clearAuditLogBtn = document.getElementById('clearAuditLog');
+
+        async function refreshAuditLog() {
+            try {
+                const response = await fetch('/api/audit_log');
+                const data = await response.json();
+                
+                if (data.success && data.log && data.log.length > 0) {
+                    displayAuditLog(data.log);
+                } else {
+                    auditLogContent.innerHTML = '<div class="audit-log-empty">No activity logged yet. Actions will appear here as you use the app.</div>';
+                }
+            } catch (error) {
+                console.error('Failed to fetch audit log:', error);
+            }
+        }
+
+        function displayAuditLog(log) {
+            auditLogContent.innerHTML = '';
+            
+            // Sort by timestamp (newest first)
+            const sortedLog = [...log].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            sortedLog.forEach(entry => {
+                const entryDiv = document.createElement('div');
+                entryDiv.className = `audit-log-entry ${entry.status}`;
+                
+                const time = new Date(entry.timestamp).toLocaleTimeString();
+                const date = new Date(entry.timestamp).toLocaleDateString();
+                
+                let detailsHtml = '';
+                if (entry.details && Object.keys(entry.details).length > 0) {
+                    detailsHtml = '<div class="audit-log-entry-details">';
+                    for (const [key, value] of Object.entries(entry.details)) {
+                        if (key === 'doc_url') {
+                            detailsHtml += `<strong>${key.replace(/_/g, ' ')}:</strong> <a href="${value}" target="_blank">Open document</a><br>`;
+                        } else {
+                            detailsHtml += `<strong>${key.replace(/_/g, ' ')}:</strong> ${value}<br>`;
+                        }
+                    }
+                    detailsHtml += '</div>';
+                }
+                
+                entryDiv.innerHTML = `
+                    <div class="audit-log-entry-header">
+                        <span class="audit-log-entry-type">${entry.action_type.replace(/_/g, ' ')}</span>
+                        <span class="audit-log-entry-time">${date} ${time}</span>
+                    </div>
+                    <div class="audit-log-entry-description">${entry.description}</div>
+                    ${detailsHtml}
+                `;
+                
+                auditLogContent.appendChild(entryDiv);
+            });
+        }
+
+        if (refreshAuditLogBtn) {
+            refreshAuditLogBtn.addEventListener('click', refreshAuditLog);
+        }
+
+        if (clearAuditLogBtn) {
+            clearAuditLogBtn.addEventListener('click', async () => {
+                if (confirm('Are you sure you want to clear the audit log?')) {
+                    try {
+                        const response = await fetch('/api/audit_log/clear', { method: 'POST' });
+                        const data = await response.json();
+                        if (data.success) {
+                            refreshAuditLog();
+                        }
+                    } catch (error) {
+                        console.error('Failed to clear audit log:', error);
+                    }
+                }
+            });
+        }
+
+        // Auto-refresh audit log every 5 seconds
+        setInterval(refreshAuditLog, 5000);
+        
+        // Initial load
+        refreshAuditLog();
 
         if (createDocBtn) {
             createDocBtn.addEventListener('click', async () => {
@@ -739,8 +1026,13 @@
                     } else {
                         docCreateMessage.textContent = 'Google Doc created successfully.';
                     }
+                    
+                    // Refresh audit log after Google Doc creation
+                    refreshAuditLog();
                 } catch (err) {
                     docCreateMessage.textContent = `Error creating Google Doc: ${err.message}`;
+                    // Refresh audit log even on error to show the error entry
+                    refreshAuditLog();
                 }
             });
         }
